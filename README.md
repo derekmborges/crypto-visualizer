@@ -3,18 +3,22 @@
 
 Web app made with React to visualize cryptocurrency transactions across many exchanges.
 
-## Week 2 Progress
+## Week 3 Progress
 
 You can access the deployed app here: [Crypto Visualizer](https://react-crypto-visualizer.herokuapp.com/)
 
-### Boilerplate React app created
+### Organizational structure of the source code files completed
 
-Run the following commands to test the app (assuming you have Node installed):
+Under `src/`, you'll find the following code organization:
 
-- `yarn` or `npm install` to install dependencies
-- `yarn start` or `npm start` to start the application
-  - It should open up a browser tab to `localhost:3000`.
+```
+src/
+  assets/     -> used to store any media files used in the app
+  components/ -> used to store the code for each React component
+  models/     -> used to store the data models used within the app
+  shared/     -> used to store shared Javascript and CSS files
+```
 
-### Finalized user interface designs
+### Skeletons of the app’s components have been created without any functionality
 
-Figma designs: [Crypto-Visualizer Designs](https://www.figma.com/file/QAVMsZlsV7WQjVrqKHMCAY/Crypto-Visualizer-Final?node-id=0%3A1).
+Focusing only on the desktop screen size initially, the canvas and the menu have been created and placed in their appropriate positions. The only functionality that currently exists is the ability to toggle the menu to be open and closed.
