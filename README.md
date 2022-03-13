@@ -3,24 +3,20 @@
 
 Web app made with React to visualize cryptocurrency transactions across many exchanges.
 
-## Week 4 Progress
+## Week 5 Progress
 
 You can access the deployed app here: [Crypto Visualizer](https://react-crypto-visualizer.herokuapp.com/)
 
-### Created API key for cryptocurrency data
+### Create a basic bubble web element
 
-I was able to find an API that allows you to retrieve crypto data for many coins across all the major exchanges: [CryptoCompare](https://www.cryptocompare.com/). I created a free API key and stored it in an environment variable in a file named `.env`. React will inject all the variables in this file that begin with `REACT_APP_` to be able to be read from the code. The file is ignored by git as these are sensitive values. The file is shown below with a redacted key:
+The [TransactionBubble](./src/components/TransactionBubble) component has been created based off the designs.
 
-`.env`
+### Add the functionality for generating bubbles of different sizes
 
-```bash
-REACT_APP_API_BASE_URL=https://min-api.cryptocompare.com/data/v4
-REACT_APP_WS_BASE_URL=wss://streamer.cryptocompare.com/v2
-REACT_APP_API_KEY=<your-api-key>
-```
+There is a `Spawn Bubbles` button that displays on the bottom left of the page. When clicked, a bubble generates using a random number to show different sized bubbles being generated. There is a bubble counter on the bottom right of the screen.
 
-### Add WebSocket connection capabilities, but just log the transactions to the console
+- Note: the spawn button will be removed in the next iteration as the live cryptocurrency data will be generating the bubbles.
 
-Using Bitcoin as the cryptocurrency to watch for now, the app now has a WebSocket implemented. As trade updates are received, they are logged to the console in a readable format.
+### Add a basic animation for moving the bubbles down the screen
 
-Unfortunately, the original NPM package I was planning on using does not work with the version of Node/React I'm using. I am now using [react-use-websocket](https://www.npmjs.com/package/react-use-websocket).
+I originally wrote "down" but I realized that is not how real water bubbles work. When a bubble is generated, it is placed below the bottom of the screen and animates up using a CSS animation. After the bubble floats up and disappears above the screen, the bubble's web component is deleted from the DOM.
