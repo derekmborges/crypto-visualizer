@@ -3,21 +3,18 @@
 
 Web app made with React to visualize cryptocurrency transactions across many exchanges.
 
-## Week 1 Progress
+## Week 2 Progress
 
-### The data model that is expected for each cryptocurrency transaction
+You can access the deployed app here: [Crypto Visualizer](https://react-crypto-visualizer.herokuapp.com/)
 
-[`transaction.ts`](./transaction.ts):
+### Boilerplate React app created
 
-```typescript
-interface Transaction {
-    exchange: string;
-    coin: string;
-    amount: number;
-    price: number;
-}
-```
+Run the following commands to test the app (assuming you have Node installed):
 
-### Initial design of the desktop screens
+- `yarn` or `npm install` to install dependencies
+- `yarn start` or `npm start` to start the application
+  - It should open up a browser tab to `localhost:3000`.
 
-Figma designs: [Crypto-Visualizer Designs](https://www.figma.com/file/inz7UtrzkbFjEoj34pa5i8/Crypto-Visualizer?node-id=0%3A1).
+### Finalized user interface designs
+
+Figma designs: [Crypto-Visualizer Designs](https://www.figma.com/file/QAVMsZlsV7WQjVrqKHMCAY/Crypto-Visualizer-Final?node-id=0%3A1).
