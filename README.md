@@ -5,7 +5,7 @@ Web app made with React to visualize cryptocurrency transactions across many exc
 
 ## Week 4 Progress
 
-You can access the deployed app here: [Crypto Visualizer](https://react-crypto-visualizer.herokuapp.com/)
+I could not get the WebSocket to work when hosted through Heroku so I will be attaching a video of the transactions being received and logged to the console. I hope to get sockets working for future progress reports but might be restricted to videos if it doesn't work.
 
 ### Created API key for cryptocurrency data
 
