@@ -3,22 +3,20 @@
 
 Web app made with React to visualize cryptocurrency transactions across many exchanges.
 
-## Week 3 Progress
+## Week 5 Progress
 
 You can access the deployed app here: [Crypto Visualizer](https://react-crypto-visualizer.herokuapp.com/)
 
-### Organizational structure of the source code files completed
+### Create a basic bubble web element
 
-Under `src/`, you'll find the following code organization:
+The [TransactionBubble](./src/components/TransactionBubble) component has been created based off the designs.
 
-```
-src/
-  assets/     -> used to store any media files used in the app
-  components/ -> used to store the code for each React component
-  models/     -> used to store the data models used within the app
-  shared/     -> used to store shared Javascript and CSS files
-```
+### Add the functionality for generating bubbles of different sizes
 
-### Skeletons of the app’s components have been created without any functionality
+There is a `Spawn Bubbles` button that displays on the bottom left of the page. When clicked, a bubble generates using a random number to show different sized bubbles being generated. There is a bubble counter on the bottom right of the screen.
 
-Focusing only on the desktop screen size initially, the canvas and the menu have been created and placed in their appropriate positions. The only functionality that currently exists is the ability to toggle the menu to be open and closed.
+- Note: the spawn button will be removed in the next iteration as the live cryptocurrency data will be generating the bubbles.
+
+### Add a basic animation for moving the bubbles down the screen
+
+I originally wrote "down" but I realized that is not how real water bubbles work. When a bubble is generated, it is placed below the bottom of the screen and animates up using a CSS animation. After the bubble floats up and disappears above the screen, the bubble's web component is deleted from the DOM.

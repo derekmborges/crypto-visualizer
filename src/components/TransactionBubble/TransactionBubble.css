@@ -1,0 +1,91 @@
+.bubble {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+
+    -webkit-box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2), inset 0px 10px 30px 5px rgba(255, 255, 255, 1);
+    -moz-box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2), inset 0px 10px 30px 5px rgba(255, 255, 255, 1);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2), inset 0px 10px 30px 5px rgba(255, 255, 255, 1);
+
+    position: absolute;
+
+    -webkit-animation: animateBubble 28s linear 1, sideWays 2s ease-in-out infinite alternate;
+    -moz-animation: animateBubble 28s linear 1, sideWays 2s ease-in-out infinite alternate;
+    animation: animateBubble 28s linear 1, sideWays 2s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes animateBubble {
+    0% {
+        margin-top: 100%;
+    }
+    100% {
+        margin-top: -100%;
+    }
+}
+
+@-moz-keyframes animateBubble {
+    0% {
+        margin-top: 100%;
+    }
+    100% {
+        margin-top: -100%;
+    }
+}
+
+@keyframes animateBubble {
+    0% {
+        margin-top: 100%;
+    }
+    100% {
+        margin-top: -100%;
+    }
+}
+
+@-webkit-keyframes sideWays { 
+    0% { 
+        margin-left:0px;
+    }
+    100% { 
+        margin-left:50px;
+    }
+}
+
+@-moz-keyframes sideWays { 
+    0% { 
+        margin-left:0px;
+    }
+    100% { 
+        margin-left:50px;
+    }
+}
+
+@keyframes sideWays { 
+    0% { 
+        margin-left:0px;
+    }
+    100% { 
+        margin-left:50px;
+    }
+}
+
+.transaction-amount {
+    font-family: Maven Pro;
+    font-style: normal;
+    font-weight: bold;
+    line-height: 28px;
+    text-align: center;
+    z-index: 4;
+    /* Coolgray/600 */
+    color: #4B5563;
+}
+
+.transaction-price {
+    font-family: Maven Pro;
+    font-style: normal;
+    font-weight: bold;
+    line-height: 21px;
+    text-align: center;
+    z-index: 4;
+    /* Coolgray/500 */
+    color: #6B7280;
+}

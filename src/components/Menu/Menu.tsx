@@ -14,7 +14,7 @@ function Menu() {
         <>
             {/* Menu container */}
             {showing &&
-                <div className='absolute top-1.5 left-1.5 w-80 h-64'>
+                <div className='absolute top-1.5 left-1.5 w-80 h-64 z-50'>
                     <div
                     className={`menu
                         w-80 h-64 overflow-hidden
@@ -24,7 +24,7 @@ function Menu() {
             }
 
             {/* Menu toggle */}
-            <div className={`absolute top-1.5 left-1.5 w-12 h-12
+            <div className={`absolute top-1.5 left-1.5 w-12 h-12 z-50
                 rounded flex place-items-center justify-center cursor-pointer
                 ${showing ? 'bg-coolgray100 border border-gray200 rounded-tr-none rounded-bl-none' : 'bg-coolgray50 drop-shadow-lg'}`}
                 onClick={toggleMenu}>
