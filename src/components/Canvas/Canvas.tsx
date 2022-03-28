@@ -1,50 +1,56 @@
-import './Canvas.css';
-import TransactionBubble from '../TransactionBubble/TransactionBubble';
-import { useState } from 'react';
-import { Transaction } from '../../models/transaction';
+import './Canvas.css'
+import { useEffect, useState } from 'react'
+import { Transaction } from '../../models/transaction'
+import { TransactionBubble } from '../TransactionBubble/TransactionBubble'
+import useWindowDimensions from '../../utils/getWindowDimensions'
+import Sketch from 'react-p5'
+import p5Types from 'p5'
 
-function Canvas() {
-    const [nextKey, setNextKey] = useState(0)
-    const [transactions, setTransactions] = useState({} as {[key: string]: Transaction})
+function Canvas({ newTransaction = {} as Transaction, clearNew = () => {} }) {
+    const { height, width } = useWindowDimensions()
+    const [bubbles, setBubbles] = useState([] as TransactionBubble[])
+    const [p5, setP5] = useState()
+    const [ctx, setCtx] = useState()
 
-    const deleteBubble = (key: string) => {
-        if (Object.keys(transactions).includes(key)) {
-            delete transactions[key]
+    useEffect(() => {
+        if (newTransaction && newTransaction.amount) {
+            if (p5 && bubbles.length < 15) {
+                const newBubble = new TransactionBubble(newTransaction, p5, ctx, width, height)
+                setBubbles([...bubbles, newBubble])
+                setTimeout(() => clearNew(), 1000)
+            }
         }
-        setTransactions({...transactions})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newTransaction])
+
+    const setup = (p5: any, canvasParentRef: Element) => {
+        setP5(p5)
+        p5.createCanvas(width, height).parent(canvasParentRef)
+        const ctx = p5.canvas.getContext('2d')
+        setCtx(ctx)
+        p5.frameRate(60);
     }
 
-    const addTransaction = () => {
-        const min = 0.00001
-        const max = 0.1
-        const random = Math.random()
-        const randAmount = min + ((max-min) * random)
-        transactions[nextKey.toString()] = {
-            amount: Number.parseFloat(randAmount.toFixed(6)),
-            coin: 'BTC',
-            exchange: 'Coinbase',
-            price: 45000
+    const draw = (p5: any) => {
+        p5.background(156, 163, 175)
+
+        for (let bubble of bubbles) {
+            bubble.draw()
+            bubble.update()
         }
-        setTimeout(() => deleteBubble(nextKey.toString()), 25000)
-        setNextKey(nextKey + 1)
+
+        for (let i = bubbles.length-1; i >= 0; i--) {
+            if (bubbles[i].isOffscreen()) {
+                const bubblesCopy = bubbles
+                bubblesCopy.splice(i, 1)
+                setBubbles(bubblesCopy)
+            }
+        }
     }
 
     return (
-        <div className='w-screen h-screen bg-coolgray400'>
-            <div className={`absolute bottom-2 left-2 w-32 h-16 z-50
-                rounded-full bg-coolgray50 drop-shadow hover:drop-shadow-lg cursor-pointer noselect
-                center flex place-items-center justify-center`}
-                onClick={addTransaction}>
-                Spawn Bubble
-            </div>
-            <div className='absolute bottom-2 right-2'>
-                <span className='text-2xl'>{ Object.keys(transactions).length }</span>
-            </div>
-            {Object.entries(transactions).map(([key, transaction]) => (
-                <TransactionBubble key={key} transaction={transaction} />
-            ))}
-        </div>
+        <Sketch setup={setup} draw={draw} />
     );
 }
 
-export default Canvas;
+export default Canvas
