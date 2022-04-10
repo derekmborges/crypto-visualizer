@@ -8,6 +8,7 @@ module.exports = {
       'coolgray50': '#F9FAFB',
       'coolgray100': '#F3F4F6',
       'coolgray400': '#9CA3AF',
+      'coolgray500': '#6B7280',
       'gray200': '#E4E4E7',
       'truegray50': '#FAFAFA',
     },
