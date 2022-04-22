@@ -1,12 +1,20 @@
 import './Canvas.css'
 import { useEffect, useState } from 'react'
+import { ReadyState } from 'react-use-websocket';
+import { IconContext } from 'react-icons';
+import { VscRefresh } from 'react-icons/vsc';
 import { Transaction } from '../../models/transaction'
 import { TransactionBubble } from '../TransactionBubble/TransactionBubble'
 import useWindowDimensions from '../../utils/getWindowDimensions'
 import Sketch from 'react-p5'
 import p5Types from 'p5'
 
-function Canvas({ newTransaction = {} as Transaction, clearNew = () => {} }) {
+function Canvas({
+    newTransaction = {} as Transaction,
+    clearNew = () => {},
+    connectionError = undefined as ReadyState | undefined,
+    reconnect = () => {}
+}) {
     const { height, width } = useWindowDimensions()
     const [bubbles, setBubbles] = useState([] as TransactionBubble[])
     const [p5, setP5] = useState()
@@ -48,9 +56,17 @@ function Canvas({ newTransaction = {} as Transaction, clearNew = () => {} }) {
         }
     }
 
-    return (
-        <Sketch setup={setup} draw={draw} />
-    );
+    return connectionError === undefined
+            ? <Sketch setup={setup} draw={draw} />
+            : <div className='w-screen h-screen bg-coolgray400 flex flex-col place-items-center justify-center'>
+                <h1 className='text-xl font-bold text-coolgray100'>Something went wrong...</h1>
+                <div className='w-12 h-12 m-3 rounded-full flex place-items-center justify-center cursor-pointer bg-coolgray500 drop-shadow-lg'
+                    onClick={reconnect}>
+                    <IconContext.Provider value={{ color: 'white' }}>
+                        <VscRefresh className='w-8 h-8' />
+                    </IconContext.Provider>
+                </div>
+              </div>
 }
 
 export default Canvas

@@ -4,15 +4,19 @@ import Menu from './components/Menu/Menu';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useEffect, useState } from 'react';
 import { Transaction } from './models/transaction';
+import { MenuOption } from './models/menu-option';
 
 function App() {
-  const [active, setActive] = useState(true)
-  const [exchange, setExchange] = useState('Coinbase')
-  const [currency, setCurrency] = useState('BTC')
+  const [active, setActive] = useState(false)
+  const [coins, setCoins] = useState([])
+  const [currency, setCurrency] = useState('')
+  const [exchanges, setExchanges] = useState([])
+  const [exchange, setExchange] = useState('')
   const [subscription, setSubscription] = useState('')
   const [initialCount, setInitialCount] = useState(0)
   const [queue, setQueue] = useState([] as Transaction[])
   const [newTransaction, setNewTransaction] = useState({} as Transaction)
+
 
   // Initiate WebSocket connection
   const wsBase = process.env.REACT_APP_WS_BASE_URL
@@ -23,8 +27,34 @@ function App() {
     readyState
   } = useWebSocket(`${wsBase}?api_key=${apiKey}`)
 
+  const isConnectionActive = () => readyState === ReadyState.OPEN
+
+  useEffect(() => {
+    // Retrieve top crypto coins
+    fetch(`https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD&api_key=${apiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        const coins = data.Data.map((d: any) => ({
+          value: d.CoinInfo.Name,
+          label: d.CoinInfo.FullName
+        } as MenuOption))
+        setCoins(coins)
+      })
+    
+    // Retrieve top exchanges
+    fetch(`https://min-api.cryptocompare.com/data/top/exchanges?fsym=BTC&tsym=USD&limit=10&api_key=${apiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        const exchanges = data.Data.map((d: any) => ({
+          value: d.exchange,
+          label: d.exchange
+        } as MenuOption))
+        console.log(exchanges)
+        setExchanges(exchanges)
+      })
+  }, [])
+
   // React to the state of the WebSocket connection
-  // and just log it to the console for now
   useEffect(() => {
     console.log('Connection is', readyState === ReadyState.OPEN ? 'ACTIVE' : 'INACTIVE')
   }, [readyState])
@@ -36,7 +66,7 @@ function App() {
 
       // If the welcome message is received, the app is ready
       // to request trade updates over the socket
-      if (data?.MESSAGE === 'STREAMERWELCOME') {
+      if (data?.MESSAGE === 'STREAMERWELCOME' && exchange.length > 0 && currency.length > 0) {
         console.log('subscribing to trades...')
         const newSub = `0~${exchange}~${currency}~USD`
         var subRequest = {
@@ -81,7 +111,7 @@ function App() {
   }, [queue])
 
   useEffect(() => {
-    if (readyState === ReadyState.OPEN && subscription !== '') {
+    if (isConnectionActive() && subscription !== '') {
       
       // Check if it actually changed
       const newSub = `0~${exchange}~${currency}~USD`
@@ -122,10 +152,25 @@ function App() {
     setExchange(exchange)
   }
 
+  const reload = () => {
+    window.location.reload()
+  }
+
   return (
     <>
-      <Canvas newTransaction={newTransaction} clearNew={clearNew} />
-      <Menu currencyChanged={onCurrencyChanged} exchangeChanged={onExchangeChanged} />
+      <Canvas
+        newTransaction={newTransaction}
+        clearNew={clearNew}
+        connectionError={isConnectionActive() ? undefined : readyState}
+        reconnect={reload}
+      />
+      <Menu
+        active={isConnectionActive()}
+        coins={coins}
+        exchanges={exchanges}
+        currencyChanged={onCurrencyChanged}
+        exchangeChanged={onExchangeChanged}
+      />
     </>
   );
 }
