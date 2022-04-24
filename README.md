@@ -3,25 +3,16 @@
 
 Web app made with React to visualize cryptocurrency transactions across many exchanges.
 
-## Week 8 Progress
+## Final Progress
 
-### Add Connection status indicators
+### Re-design bubble element
 
-There are now 2 visual indicators for the user to see if the application is unable to successfully connect over the Websocket connection. The first is the in the menu on the top-left, and the second is in the middle of the canvas. This reacts to the status of the websocket connection and displays a "refresh" button that will reload the page for them to see if it was just a fluke.
+As a result of some research on best practices for animating web elements, the bubble element has been changed to be an SVG animated with a library called `react-spring`. The SVGs are much more performant now and appear much smoother in the application.
 
-### Test the responsiveness
+### Implement redux for transactions
 
-I had originally planned to add in device responsiveness later in the project, but as I was doing some testing this week I noticed that the app was already quite responsive with the styles I had applied in previous weeks. I made sure to implement the connection error message so that it would stay in the center for all screen sizes.
-## Week 9 Progress
+Previously, the transactions coming in over the WebSocket were being maintained in the App parent component and passed down to child components. This presented an issue when a component multiple children down needed to trigger a change to the state of the transactions. Rather than pass method calls all the way back up to the App component, this justified the use of Redux. Now, the app's transactions are stored in a common state object and served to all the components that need access to it. Additionally, any component can trigger a change to the state and that change gets reflected automatically in all the other componentes.
 
-### Make menu options dynamic
+### Optimize performance
 
-Instead of having the menu display a static list of options for the coin and exchange, now it loads a dynamic list of top coins and exchanges from Cryptocompare. This makes the application more future-proof, the list of popular coins could change down the line and this wouldn't require a code update to the app.
-
-### Default the exchange and currency
-
-Now that the list of currency and exchange options are dynamic, the menu now defaults to the top coin and top exchange. This allows the application to be the most relevant to a user visiting the site. At the time of building this, Bitcoin is the most popular cryptocurrency. If someone visits the site and doesn't know much about crypto, they will likely have heard of Bitcoin.
-
-### Remaining Progress
-
-In the remaining time I have for this project, I am going to work on making the bubbles more performant. Whether I need to only generate every nth transaction or find a different library that can manage the moving DOM elements, I need to find some solution to make it a more pleasurable experience for the user.
+Due to the sheer volume of crypto transactions that occur on an exchange at any given time, it is difficult for the app to attempt to display every one without performing extremely slow. The application now displays every 20th transaction that comes over the socket. This optimizes performance by limiting the number of bubble elements that will exist and animated at a time.

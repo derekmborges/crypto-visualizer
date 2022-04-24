@@ -5,18 +5,19 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useEffect, useState } from 'react';
 import { Transaction } from './models/transaction';
 import { MenuOption } from './models/menu-option';
+import { useAppDispatch } from './hooks';
+import { addTransaction, clearTransactions } from './state/transactionsSlice';
+import { Guid } from 'typescript-guid';
 
 function App() {
-  const [active, setActive] = useState(false)
+  const [active, setActive] = useState(true)
   const [coins, setCoins] = useState([])
   const [currency, setCurrency] = useState('')
   const [exchanges, setExchanges] = useState([])
   const [exchange, setExchange] = useState('')
   const [subscription, setSubscription] = useState('')
-  const [initialCount, setInitialCount] = useState(0)
-  const [queue, setQueue] = useState([] as Transaction[])
-  const [newTransaction, setNewTransaction] = useState({} as Transaction)
-
+  const [counter, setCounter] = useState(0)
+  const dispatch = useAppDispatch()
 
   // Initiate WebSocket connection
   const wsBase = process.env.REACT_APP_WS_BASE_URL
@@ -40,7 +41,7 @@ function App() {
         } as MenuOption))
         setCoins(coins)
       })
-    
+
     // Retrieve top exchanges
     fetch(`https://min-api.cryptocompare.com/data/top/exchanges?fsym=BTC&tsym=USD&limit=10&api_key=${apiKey}`)
       .then(response => response.json())
@@ -49,7 +50,6 @@ function App() {
           value: d.exchange,
           label: d.exchange
         } as MenuOption))
-        console.log(exchanges)
         setExchanges(exchanges)
       })
   }, [])
@@ -58,7 +58,7 @@ function App() {
   useEffect(() => {
     console.log('Connection is', readyState === ReadyState.OPEN ? 'ACTIVE' : 'INACTIVE')
   }, [readyState])
-  
+
   // Respond to new messages coming in from the data provider
   useEffect(() => {
     if (active && lastMessage) {
@@ -80,99 +80,82 @@ function App() {
       // If the app receives a trade update,
       // create a Transaction and log it to the console for now
       else if (data?.TYPE === '0') {
-        if (initialCount <= 20) {
-          setInitialCount(initialCount+1)
-        } else {
-          const transaction: Transaction = {
-            exchange: data.M,
-            coin: data.FSYM,
-            price: data.P,
-            amount: data.Q
-          }
-
-          // Add it to the queue
-          setQueue([...queue, transaction])
+        const transaction: Transaction = {
+          id: Guid.create().toString(),
+          exchange: data.M,
+          coin: data.FSYM,
+          price: data.P,
+          amount: data.Q
         }
+
+        if (counter % 20 === 0) {
+          dispatch(addTransaction(transaction))
+        }
+        setCounter(counter + 1)
+
       }
     }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastMessage])
 
-  useEffect(() => {
-    if (queue.length > 0) {
-      setNewTransaction(queue[0])
+useEffect(() => {
+  if (isConnectionActive() && subscription !== '') {
 
-      // Remove it from the queue
-      const queueCopy = queue
-      queue.splice(0, 1)
-      setQueue(queueCopy)
+    // Check if it actually changed
+    const newSub = `0~${exchange}~${currency}~USD`
+    if (subscription !== newSub) {
+      // Remove current subscription
+      const removeSubRequest = {
+        "action": "SubRemove",
+        "subs": [subscription]
+      };
+      sendMessage(JSON.stringify(removeSubRequest))
+
+      // Add new subscription
+      const addSubRequest = {
+        "action": "SubAdd",
+        "subs": [newSub]
+      };
+      sendMessage(JSON.stringify(addSubRequest))
+      setSubscription(newSub)
+      console.log('SUBSCRIPTION CHANGED FROM', subscription, 'TO', newSub)
+
+      // Clear all transactions
+      dispatch(clearTransactions())
     }
-  }, [queue])
 
-  useEffect(() => {
-    if (isConnectionActive() && subscription !== '') {
-      
-      // Check if it actually changed
-      const newSub = `0~${exchange}~${currency}~USD`
-      if (subscription !== newSub) {
-        // Remove current subscription
-        const removeSubRequest = {
-          "action": "SubRemove",
-          "subs": [subscription]
-        };
-        sendMessage(JSON.stringify(removeSubRequest))
-        
-        // Add new subscription
-        const addSubRequest = {
-          "action": "SubAdd",
-          "subs": [newSub]
-        };
-        sendMessage(JSON.stringify(addSubRequest))
-        setSubscription(newSub)
-        console.log('SUBSCRIPTION CHANGED FROM', subscription, 'TO', newSub)
-  
-        // Clear queue
-        setQueue([])
-      }
-
-    }
+  }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currency, exchange])
+}, [currency, exchange])
 
-  const clearNew = () => {
-    setNewTransaction({} as Transaction)
-  }
+const onCurrencyChanged = (currency: string) => {
+  setCurrency(currency)
+}
 
-  const onCurrencyChanged = (currency: string) => {
-    setCurrency(currency)
-  }
+const onExchangeChanged = (exchange: string) => {
+  setExchange(exchange)
+}
 
-  const onExchangeChanged = (exchange: string) => {
-    setExchange(exchange)
-  }
+const reload = () => {
+  window.location.reload()
+}
 
-  const reload = () => {
-    window.location.reload()
-  }
-
-  return (
-    <>
-      <Canvas
-        newTransaction={newTransaction}
-        clearNew={clearNew}
-        connectionError={isConnectionActive() ? undefined : readyState}
-        reconnect={reload}
-      />
-      <Menu
-        active={isConnectionActive()}
-        coins={coins}
-        exchanges={exchanges}
-        currencyChanged={onCurrencyChanged}
-        exchangeChanged={onExchangeChanged}
-      />
-    </>
-  );
+return (
+  <>
+    <Canvas
+      connectionError={isConnectionActive() ? undefined : readyState}
+      reconnect={reload}
+    />
+    <Menu
+      active={isConnectionActive()}
+      coins={coins}
+      exchanges={exchanges}
+      currencyChanged={onCurrencyChanged}
+      exchangeChanged={onExchangeChanged}
+    />
+  </>
+);
 }
 
 export default App;
