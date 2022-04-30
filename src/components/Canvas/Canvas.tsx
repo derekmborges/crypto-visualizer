@@ -1,72 +1,41 @@
 import './Canvas.css'
-import { useEffect, useState } from 'react'
 import { ReadyState } from 'react-use-websocket';
 import { IconContext } from 'react-icons';
 import { VscRefresh } from 'react-icons/vsc';
 import { Transaction } from '../../models/transaction'
-import { TransactionBubble } from '../TransactionBubble/TransactionBubble'
 import useWindowDimensions from '../../utils/getWindowDimensions'
-import Sketch from 'react-p5'
-import p5Types from 'p5'
+import Bubble2 from '../Bubble/Bubble2';
+import { useAppSelector } from '../../hooks';
 
 function Canvas({
-    newTransaction = {} as Transaction,
-    clearNew = () => {},
     connectionError = undefined as ReadyState | undefined,
     reconnect = () => {}
 }) {
     const { height, width } = useWindowDimensions()
-    const [bubbles, setBubbles] = useState([] as TransactionBubble[])
-    const [p5, setP5] = useState()
-    const [ctx, setCtx] = useState()
+    const transactions = useAppSelector((state) => state.transactions.value)
 
-    useEffect(() => {
-        if (newTransaction && newTransaction.amount) {
-            if (p5 && bubbles.length < 15) {
-                const newBubble = new TransactionBubble(newTransaction, p5, ctx, width, height)
-                setBubbles([...bubbles, newBubble])
-                setTimeout(() => clearNew(), 1000)
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [newTransaction])
-
-    const setup = (p5: any, canvasParentRef: Element) => {
-        setP5(p5)
-        p5.createCanvas(width, height).parent(canvasParentRef)
-        const ctx = p5.canvas.getContext('2d')
-        setCtx(ctx)
-        p5.frameRate(60);
-    }
-
-    const draw = (p5: any) => {
-        p5.background(156, 163, 175)
-
-        for (let bubble of bubbles) {
-            bubble.draw()
-            bubble.update()
-        }
-
-        for (let i = bubbles.length-1; i >= 0; i--) {
-            if (bubbles[i].isOffscreen()) {
-                const bubblesCopy = bubbles
-                bubblesCopy.splice(i, 1)
-                setBubbles(bubblesCopy)
-            }
-        }
-    }
-
-    return connectionError === undefined
-            ? <Sketch setup={setup} draw={draw} />
-            : <div className='w-screen h-screen bg-coolgray400 flex flex-col place-items-center justify-center'>
-                <h1 className='text-xl font-bold text-coolgray100'>Something went wrong...</h1>
-                <div className='w-12 h-12 m-3 rounded-full flex place-items-center justify-center cursor-pointer bg-coolgray500 drop-shadow-lg'
-                    onClick={reconnect}>
-                    <IconContext.Provider value={{ color: 'white' }}>
-                        <VscRefresh className='w-8 h-8' />
-                    </IconContext.Provider>
-                </div>
-              </div>
+    return connectionError === undefined || connectionError === ReadyState.CONNECTING
+        ? <div className='w-screen h-screen bg-coolgray400'>
+            {transactions.map((t: Transaction, i: number) =>
+                <Bubble2
+                    key={i}
+                    id={t.id}
+                    canvasWidth={width}
+                    canvasHeight={height}
+                    amount={t.amount}
+                    coin={t.coin}
+                />
+            )}
+        </div>
+        : <div className='w-screen h-screen bg-coolgray400 flex flex-col place-items-center justify-center'>
+            <h1 className='text-xl font-bold text-coolgray100'>Something went wrong...</h1>
+            <div className='w-12 h-12 m-3 rounded-full flex place-items-center justify-center cursor-pointer bg-coolgray500 drop-shadow-lg'
+                onClick={reconnect}>
+                <IconContext.Provider value={{ color: 'white' }}>
+                    <VscRefresh className='w-8 h-8' />
+                </IconContext.Provider>
+            </div>
+        </div>
 }
 
 export default Canvas

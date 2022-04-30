@@ -1,5 +1,6 @@
 
 export interface Transaction {
+    id: string;
     exchange: string;
     coin: string;
     amount: number;
